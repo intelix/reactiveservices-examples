@@ -1,0 +1,11 @@
+/project/target
+/target
+/counter/service/target
+/counter/web/target
+/counter/websocket/target
+/stocks/engine/target
+/stocks/pricesource/target
+/stocks/web/target
+/stocks/websocket/target
+.idea
+*.log
