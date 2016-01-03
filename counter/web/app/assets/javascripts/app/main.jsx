@@ -18,7 +18,7 @@ define(['react','./Layout', 'core/socket'], function (React, Layout, Socket) {
     return function() {
         React.render(<Layout />, document.getElementById('content'));
 
-        Socket.connect("ws://localhost:8080");
+        Socket.connect();
     };
 
 });

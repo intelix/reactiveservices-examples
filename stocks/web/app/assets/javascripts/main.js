@@ -29,6 +29,14 @@
         shim: {
             'jquery': {exports: "$"},
             'lodash': {exports: "_"}
+        },
+        config: {
+            'core/socket': {
+                endpoints: ["ws://localhost:8080"]
+            },
+            'core/logging': {
+                logLevel: 'warn'
+            }
         }
     });
 

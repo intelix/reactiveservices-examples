@@ -35,6 +35,7 @@ class CounterServiceTest extends StandardMultiNodeSpec {
     consumer ! Open("counter-service", "counter")
     on node1 expectOne of CounterServiceEvt.StreamInterestAdded + ('stream -> "counter")
     on node2 expectSome of TestServiceConsumerEvt.StringUpdate + ('topic -> "counter")
+    printRaisedEvents()
   }
 
   it should s"register a subscriber and send stream updates, which should be received by consumer" in registerAndUpdateCheck
