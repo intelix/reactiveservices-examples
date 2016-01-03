@@ -96,6 +96,8 @@ class CounterServiceTest extends StandardMultiNodeSpec {
     new WithNode3 {
       override def node3Services = super.node3Services + ("counter-service" -> classOf[CounterService])
 
+      eventTimeout = EventWaitTimeout(25 seconds)
+
       on node3 expectOne of ClusterNodeActorEvt.StartingService + ('service -> "counter-service")
 
       clearEvents()
