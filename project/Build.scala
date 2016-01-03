@@ -27,7 +27,9 @@ private object Settings {
 
   lazy val resolverSettings = Seq(
     resolvers += "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/",
-    resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+    resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/",
+    resolvers += "mandubian maven bintray" at "http://dl.bintray.com/mandubian/maven",
+    resolvers += "Spray" at "http://repo.spray.io"
   )
 
   lazy val compilerSettings = Seq(
