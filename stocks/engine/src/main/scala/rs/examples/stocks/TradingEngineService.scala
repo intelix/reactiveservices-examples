@@ -49,6 +49,7 @@ class TradingEngineService(id: String) extends StatelessServiceActor(id) with Te
   val availableSymbols = Set("ABC", "XYZ")
 
   var trades: List[Trade] = List.empty
+  var latestPrices: Map[String, Double] = Map()
 
   object SymbolContainerStream extends SimpleStreamIdTemplate("symbols")
   object TradeContainerStream extends SimpleStreamIdTemplate("trades")
@@ -65,7 +66,7 @@ class TradingEngineService(id: String) extends StatelessServiceActor(id) with Te
   onStreamActive {
     case s@SymbolContainerStream() => s !% availableSymbols
     case s@SymbolStream(sym) =>
-      s !# Array(sym, 0D, false)
+      publishLatestFor(sym)
       subscribe(Subject("price-source", sym))
     case s@TradeContainerStream() => s !:! trades.take(10).map(_.id)
     case s@TradeStream(tId) if trades exists (_.id == tId) =>
@@ -79,10 +80,8 @@ class TradingEngineService(id: String) extends StatelessServiceActor(id) with Te
   onDictMapRecord {
     case (Subject(ServiceKey("price-source"), TopicKey(symbol), _), map) =>
       val stream = SymbolStream(symbol)
-      map.get("price", 0D) match {
-        case 0 => stream !# Array(symbol, 0D, false)
-        case price => stream !# Array(symbol, price, true)
-      }
+      latestPrices += symbol -> map.get("price", 0D)
+      publishLatestFor(symbol)
   }
 
   onSignal {
@@ -100,5 +99,11 @@ class TradingEngineService(id: String) extends StatelessServiceActor(id) with Te
       }
     }
   }
+
+  def publishLatestFor(symbol: String) = latestPrices.get(symbol) match {
+    case Some(price) if price > 0 => SymbolStream(symbol) !# Array(symbol, price, true)
+    case _ => SymbolStream(symbol) !# Array(symbol, 0D, false)
+  }
+
 
 }

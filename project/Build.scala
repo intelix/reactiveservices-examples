@@ -8,27 +8,30 @@ import sbt._
 
 private object Settings {
 
-  val rsVersion = "0.1.1"
+  val rsVersion = "0.1.2_3-SNAPSHOT"
 
-  val rsAuth = "au.com.intelix" %% "rs-auth" % rsVersion changing()
-  val rsWebsocketServer = "au.com.intelix" %% "rs-websocket-server" % rsVersion changing()
-  val rsNode = "au.com.intelix" %% "rs-core-node" % rsVersion changing()
-  val rsWebClient = "au.com.intelix" %% "rs-core-js" % rsVersion changing()
+  val rsNode = "au.com.intelix" %% "rs-core-node" % rsVersion
+  val rsAuth = "au.com.intelix" %% "rs-auth" % rsVersion
+  val rsWebsocketServer = "au.com.intelix" %% "rs-websocket-server" % rsVersion
+  val rsWebClient = "au.com.intelix" %% "rs-core-js" % rsVersion
 
 
   lazy val baseSettings = Defaults.coreDefaultSettings
 
-  lazy val versions = Seq(
+  lazy val artifactSettings = Seq(
+    version := rsVersion,
     organization := "au.com.intelix",
-    scalaVersion := "2.11.7",
-    version := rsVersion
+    licenses := Seq(("Apache License, Version 2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))),
+    homepage := Some(url("http://reactiveservices.org/"))
   )
 
   lazy val resolverSettings = Seq(
-    resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/releases/"
+    resolvers += "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/",
+    resolvers += "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
   )
 
   lazy val compilerSettings = Seq(
+    scalaVersion := "2.11.7",
     scalacOptions in Compile ++= Seq(
       "-encoding", "UTF-8",
       "-target:jvm-1.8",
@@ -43,29 +46,26 @@ private object Settings {
     ),
     incOptions := incOptions.value.withNameHashing(nameHashing = true),
     evictionWarningOptions in update := EvictionWarningOptions
-      .default.withWarnTransitiveEvictions(false).withWarnDirectEvictions(false).withWarnScalaVersionEviction(false)
+      .default.withWarnTransitiveEvictions(false).withWarnDirectEvictions(false).withWarnScalaVersionEviction(false),
+    doc in Compile <<= target.map(_ / "none")
   )
 
-  lazy val sharedProjectSettings = Seq(
-    licenses := Seq(("Apache License, Version 2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))),
-    homepage := Some(url("http://reactiveservices.org/"))
-  )
 
   lazy val testSettings = Seq(
     testOptions in Test += Tests.Argument("-oDF"),
     testListeners in(Test, test) := Seq(TestLogger(streams.value.log, { _ => streams.value.log }, logBuffered.value)),
-    testOptions += Tests.Argument(TestFrameworks.JUnit, "-v", "-a"),
-    parallelExecution in Test := false
+    testOptions += Tests.Argument(TestFrameworks.JUnit, "-v", "-a")
   )
 
   lazy val concurrencySettings = Seq(
     concurrentRestrictions in Global := Seq(
       Tags.limit(Tags.Test, 1),
       Tags.limitAll(1)
-    )
+    ),
+    parallelExecution in Global := false
   )
 
-  lazy val defaultSettings = versions ++ baseSettings ++ resolverSettings ++ compilerSettings ++ sharedProjectSettings ++ testSettings ++ concurrencySettings
+  lazy val defaultSettings = artifactSettings ++ baseSettings ++ resolverSettings ++ compilerSettings ++ testSettings ++ concurrencySettings
 }
 
 object Build {

@@ -37,7 +37,10 @@ class PriceSourceService(id: String) extends StatelessServiceActor(id) with Pric
   }
 
   onStreamActive {
-    case SimpleStreamId(sym) => symbols += sym -> (Math.random() * 5000).toInt
+    case SimpleStreamId(sym) =>
+      val base = (Math.random() * 5000).toInt
+      symbols += sym -> base
+      publishPriceFor(sym, base)
   }
 
   onStreamPassive {
@@ -48,13 +51,16 @@ class PriceSourceService(id: String) extends StatelessServiceActor(id) with Pric
   onMessage {
     case "tick" =>
       symbols.foreach {
-        case (sym, base) =>
-          val price = (base + ((Math.random() * 500).toInt - 250)).toDouble / 100
-          sym !# ("price" -> price)
+        case (sym, base) => publishPriceFor(sym, base)
       }
-      scheduleOnce(2 seconds, "tick")
+      scheduleOnce(5 seconds, "tick")
   }
 
-  scheduleOnce(2 seconds, "tick")
+  def publishPriceFor(symbol: String, base: Int) = {
+    val price = (base + ((Math.random() * 500).toInt - 250)).toDouble / 100
+    symbol !# ("price" -> price)
+  }
+
+  scheduleOnce(5 seconds, "tick")
 
 }
