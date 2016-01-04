@@ -8,7 +8,7 @@ import sbt._
 
 private object Settings {
 
-  val rsVersion = "0.1.2_5-SNAPSHOT"
+  val rsVersion = "0.1.2_7-SNAPSHOT"
 
   val rsNode = "au.com.intelix" %% "rs-core-node" % rsVersion
   val rsAuth = "au.com.intelix" %% "rs-auth" % rsVersion
